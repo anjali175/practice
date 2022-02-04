@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="45a9a176-468d-4135-9d0a-81919a73ff3c" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="44664fbd-ce3b-47e4-b7bd-c3bec00ba0e0" >
+		<db:my-sql-connection host="remotemysql.com" port="3306" user="4zli0C4a3O" password="FJtpAfplcb" database="4zli0C4a3O" />
+	</db:config>
+	<flow name="flightsFlow" doc:id="2312ab25-69ce-460f-b2fa-ad923b53f025" >
+		<http:listener doc:name="Listener" doc:id="e7484cda-888a-45be-9a25-f6455c8e8432" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="GET"/>
+		<db:select doc:name="Select" doc:id="32977f56-22bc-412d-8c02-b7d84fd6f0cd" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from airlines
+]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="57e9f443-c0cc-47df-8f77-15164e957ed5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="flightsFlow1" doc:id="7432038b-2715-43f6-9422-693acc8a0b62" >
+		<http:listener doc:name="Listener" doc:id="bfa25eed-9e5a-409d-b9c8-8cb27557d568" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="POST"/>
+		<db:insert doc:name="Insert" doc:id="0c7af52a-0e47-4499-90f1-c54977a159ed" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into airlines values(:id,:name,:dest,:price,:emptyseats)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'id':payload.id,'name':payload.name,'dest':payload.dest,'price':payload.price,'emptyseats':payload.emptyseats}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="272526e7-080a-4358-b015-7007339c8dca">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"data added succesfully": new airline added
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
