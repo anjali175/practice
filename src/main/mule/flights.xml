@@ -27,7 +27,7 @@ payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="flightsFlow1" doc:id="7432038b-2715-43f6-9422-693acc8a0b62" >
+	<flow name="Postflow" doc:id="7432038b-2715-43f6-9422-693acc8a0b62" >
 		<http:listener doc:name="Listener" doc:id="bfa25eed-9e5a-409d-b9c8-8cb27557d568" config-ref="HTTP_Listener_config" path="/flights" allowedMethods="POST"/>
 		<db:insert doc:name="Insert" doc:id="0c7af52a-0e47-4499-90f1-c54977a159ed" config-ref="Database_Config">
 			<db:sql ><![CDATA[insert into airlines values(:id,:name,:dest,:price,:emptyseats)]]></db:sql>
